@@ -6,8 +6,35 @@ Defines and initializes all SQLite tables for the Attendance Management System.
 
 import sqlite3
 import os
+import sys
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "attendance.db")
+
+def _get_app_data_dir() -> str:
+    """Return a persistent, writable per-user directory for AttendX's data.
+
+    Using a path relative to __file__ works fine while running from source,
+    but breaks once the app is packaged into a standalone executable
+    (PyInstaller, cx_Freeze, etc.): __file__ then resolves to a temporary
+    extraction folder that is recreated empty and deleted on every launch,
+    so the database would silently reset every time the app starts. This
+    instead resolves to a real OS-standard per-user data folder that exists
+    both in development and in a packaged build.
+    """
+    app_name = "AttendX"
+    if sys.platform.startswith("win"):
+        base = os.environ.get("APPDATA") or os.path.expanduser("~")
+    elif sys.platform == "darwin":
+        base = os.path.join(os.path.expanduser("~"), "Library", "Application Support")
+    else:
+        base = os.environ.get("XDG_DATA_HOME") or os.path.join(
+            os.path.expanduser("~"), ".local", "share"
+        )
+    path = os.path.join(base, app_name)
+    os.makedirs(path, exist_ok=True)
+    return path
+
+
+DB_PATH = os.path.join(_get_app_data_dir(), "attendance.db")
 
 
 def get_connection() -> sqlite3.Connection:

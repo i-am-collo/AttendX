@@ -707,18 +707,8 @@ class LecturerDashboard(tk.Toplevel):
 
         self._sessions_subtitle = self._page_header(inner, "Sessions", "", actions)
 
-        cols = [
-            {"id": "title",  "text": "Title",  "width": 220},
-            {"id": "date",   "text": "Date",   "width": 120, "anchor": "center"},
-            {"id": "status", "text": "Status", "width": 120, "anchor": "center"},
-        ]
-        table_card = self._card(inner, bg=T.BG_CARD)
-        table_card.pack(fill="both", expand=True)
-        self._session_tree = build_treeview(table_card, cols, height=16)
-        self._session_tree.bind("<<TreeviewSelect>>", self._on_session_select)
-
         act_row = tk.Frame(inner, bg=T.BG_DARK)
-        act_row.pack(fill="x", pady=(T.PAD_SM, 0))
+        act_row.pack(side="bottom", fill="x", pady=(T.PAD_SM, 0))
         IconButton(act_row, "Open Session", command=lambda: self._toggle_session(True),
                    bg=T.SUCCESS, hover_bg="#059669", font=T.FONT_SMALL,
                    padx=12, pady=7).pack(side="left", padx=(0, T.PAD_XS))
@@ -728,6 +718,16 @@ class LecturerDashboard(tk.Toplevel):
         IconButton(act_row, "Show QR Code", command=self._show_qr,
                    bg=T.INFO, hover_bg="#2563EB", font=T.FONT_SMALL,
                    padx=12, pady=7).pack(side="left", padx=T.PAD_XS)
+
+        cols = [
+            {"id": "title",  "text": "Title",  "width": 220},
+            {"id": "date",   "text": "Date",   "width": 120, "anchor": "center"},
+            {"id": "status", "text": "Status", "width": 120, "anchor": "center"},
+        ]
+        table_card = self._card(inner, bg=T.BG_CARD)
+        table_card.pack(fill="both", expand=True)
+        self._session_tree = build_treeview(table_card, cols, height=16)
+        self._session_tree.bind("<<TreeviewSelect>>", self._on_session_select)
 
     def _refresh_sessions_table(self):
         if not self._sel_subject:
@@ -825,6 +825,15 @@ class LecturerDashboard(tk.Toplevel):
         ttk.Entry(search_frame, textvariable=self._search_var,
                   style="TEntry").pack(side="left", fill="x", expand=True, padx=(T.PAD_XS, 0))
 
+        exp_row = tk.Frame(inner, bg=T.BG_DARK)
+        exp_row.pack(side="bottom", fill="x", pady=(T.PAD_SM, 0))
+        IconButton(exp_row, "⬇  Export Excel", command=lambda: self._export("xlsx"),
+                   bg=T.SUCCESS, hover_bg="#059669",
+                   font=T.FONT_SMALL, padx=12, pady=7).pack(side="left", padx=(0, T.PAD_SM))
+        IconButton(exp_row, "⬇  Export PDF", command=lambda: self._export("pdf"),
+                   bg=T.INFO, hover_bg="#2563EB",
+                   font=T.FONT_SMALL, padx=12, pady=7).pack(side="left")
+
         attend_cols = [
             {"id": "no",      "text": "#",         "width": 40,  "anchor": "center"},
             {"id": "name",    "text": "Full Name",  "width": 200},
@@ -836,15 +845,6 @@ class LecturerDashboard(tk.Toplevel):
         table_card = self._card(inner, bg=T.BG_CARD)
         table_card.pack(fill="both", expand=True)
         self._attend_tree = build_treeview(table_card, attend_cols, height=14)
-
-        exp_row = tk.Frame(inner, bg=T.BG_DARK)
-        exp_row.pack(fill="x", pady=(T.PAD_SM, 0))
-        IconButton(exp_row, "⬇  Export Excel", command=lambda: self._export("xlsx"),
-                   bg=T.SUCCESS, hover_bg="#059669",
-                   font=T.FONT_SMALL, padx=12, pady=7).pack(side="left", padx=(0, T.PAD_SM))
-        IconButton(exp_row, "⬇  Export PDF", command=lambda: self._export("pdf"),
-                   bg=T.INFO, hover_bg="#2563EB",
-                   font=T.FONT_SMALL, padx=12, pady=7).pack(side="left")
 
     def _refresh_attendance_table(self):
         if not self._sel_session:
@@ -1210,6 +1210,11 @@ class LecturerDashboard(tk.Toplevel):
         qr_win.title("Session QR Code")
         qr_win.configure(bg=T.BG_DARK)
         center_window(qr_win, 360, 420)
+        qr_win.transient(self)
+        qr_win.lift()
+        qr_win.focus_force()
+        qr_win.attributes("-topmost", True)
+        qr_win.after(200, lambda: qr_win.attributes("-topmost", False))
 
         try:
             from PIL import Image, ImageTk
