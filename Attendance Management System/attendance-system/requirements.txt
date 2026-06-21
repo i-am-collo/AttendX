@@ -1,0 +1,16 @@
+# AttendX — Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# Core (standard library) — no install needed:
+#   tkinter, sqlite3, hashlib, os, re, uuid, string, random, datetime, threading
+
+# Export
+openpyxl>=3.1.0         # Excel export
+reportlab>=4.0.0        # PDF export
+
+# QR Code
+qrcode[pil]>=7.4.2      # QR code generation
+Pillow>=10.0.0          # Image display in Tkinter
+
+# Optional — face recognition (placeholder, requires dlib build tools)
+# face_recognition>=1.3.0
